@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SettingsPanel, DXFilterManager, PSKFilterManager } from './components';
+import { SettingsPanel, DXFilterManager, PSKFilterManager, KeybindingsPanel } from './components';
 
 import DockableLayout from './layouts/DockableLayout.jsx';
 import ClassicLayout from './layouts/ClassicLayout.jsx';
@@ -61,6 +61,7 @@ const App = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showDXFilters, setShowDXFilters] = useState(false);
   const [showPSKFilters, setShowPSKFilters] = useState(false);
+  const [showKeybindings, setShowKeybindings] = useState(false);
   const [layoutResetKey, setLayoutResetKey] = useState(0);
   const [, setBandColorChangeVersion] = useState(0);
   const [updateInProgress, setUpdateInProgress] = useState(false);
@@ -99,10 +100,10 @@ const App = () => {
     const shortcuts = {};
     const used = new Set();
 
-    // Map the first letter of each layer name, or if already used, 
+    // Map the first letter of each layer name, or if already used,
     // The first non-duplicate letter to a key such that pressing
     // the corresponding key will toggle the respective map layer.
-    layers.forEach(layer => {
+    layers.forEach((layer) => {
       const name = (layer.name || layer.id || '').toLowerCase();
       for (let i = 0; i < name.length; i++) {
         const k = name[i];
@@ -115,15 +116,29 @@ const App = () => {
     });
 
     const handleKey = (e) => {
-      // Only handle key events if settings isn't opened and we aren't in a text input field
-      if (showSettings || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+      // Only handle key events if no modal is open and we aren't in a text input field
+      if (
+        showSettings ||
+        showDXFilters ||
+        showPSKFilters ||
+        showKeybindings ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
+      )
+        return;
+
+      // Handle '?' key to toggle keybindings panel
+      if (e.key === '?') {
+        setShowKeybindings(true);
+        e.preventDefault();
+        return;
+      }
 
       // Grab pressed key, and use to index into map of layers
-      const id = shorts[e.key.toLowerCase()];
+      const id = shortcuts[e.key.toLowerCase()];
 
       // Toggle layer
       if (id && window.hamclockLayerControls) {
-        const layerState = window.hamclockLayerControls.layers?.find(l => l.id === id);
+        const layerState = window.hamclockLayerControls.layers?.find((l) => l.id === id);
         window.hamclockLayerControls.toggleLayer(id, !(layerState?.enabled ?? false));
         e.preventDefault();
       }
@@ -131,7 +146,35 @@ const App = () => {
 
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [showSettings]);
+  }, [showSettings, showDXFilters, showPSKFilters, showKeybindings]);
+
+  // Generate keybindings list for display in the panel
+  const keybindingsList = useMemo(() => {
+    const layers = getAllLayers();
+    const shortcuts = {};
+    const used = new Set();
+
+    // Recreate the same shortcuts mapping
+    layers.forEach((layer) => {
+      const name = (layer.name || layer.id || '').toLowerCase();
+      for (let i = 0; i < name.length; i++) {
+        const k = name[i];
+        if (/[a-z]/.test(k) && !used.has(k)) {
+          shortcuts[k] = layer;
+          used.add(k);
+          break;
+        }
+      }
+    });
+
+    // Convert to array sorted by key
+    return Object.entries(shortcuts)
+      .map(([key, layer]) => ({
+        key: key.toUpperCase(),
+        description: `Toggle ${layer.name || layer.id}`,
+      }))
+      .sort((a, b) => a.key.localeCompare(b.key));
+  }, []);
 
   const handleResetLayout = useCallback(() => {
     resetLayout();
@@ -423,6 +466,11 @@ const App = () => {
         onFilterChange={setPskFilters}
         isOpen={showPSKFilters}
         onClose={() => setShowPSKFilters(false)}
+      />
+      <KeybindingsPanel
+        isOpen={showKeybindings}
+        onClose={() => setShowKeybindings(false)}
+        keybindings={keybindingsList}
       />
       <WhatsNew />
     </div>
