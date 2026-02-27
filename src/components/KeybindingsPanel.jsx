@@ -190,8 +190,6 @@ export const KeybindingsPanel = ({
   }
 
   // Modal mode - render as floating overlay
-
-  // Modal mode - render as floating overlay
   return (
     <div
       style={{
