@@ -169,12 +169,19 @@ const App = () => {
 
     // Convert to array sorted by key
     return Object.entries(shortcuts)
-      .map(([key, layer]) => ({
-        key: key.toUpperCase(),
-        description: `Toggle ${layer.name || layer.id}`,
-      }))
+      .map(([key, layer]) => {
+        // Translate layer name if it's a translation key
+        let layerName = layer.name || layer.id;
+        if (layerName && layerName.startsWith('plugins.layers.')) {
+          layerName = t(layerName, layerName);
+        }
+        return {
+          key: key.toUpperCase(),
+          description: `Toggle ${layerName}`,
+        };
+      })
       .sort((a, b) => a.key.localeCompare(b.key));
-  }, []);
+  }, [t]);
 
   const handleResetLayout = useCallback(() => {
     resetLayout();
@@ -417,6 +424,7 @@ const App = () => {
     rightSidebarVisible,
     getGridTemplateColumns,
     scale,
+    keybindingsList,
   };
 
   return (

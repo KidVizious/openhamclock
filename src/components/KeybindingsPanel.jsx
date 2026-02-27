@@ -1,16 +1,27 @@
 /**
  * KeybindingsPanel Component
- * Displays all current keybindings in a floating panel
+ * Displays all current keybindings in a floating panel or dockable panel
  */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
+export const KeybindingsPanel = ({
+  isOpen,
+  onClose,
+  keybindings,
+  nodeId,
+  zoom = 1.0,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+}) => {
   const { t } = useTranslation();
+  const isDocked = !!nodeId;
+  const showZoomControls = isDocked && onZoomIn && onZoomOut;
 
-  // Handle escape key to close
+  // Handle escape key to close (only for modal mode)
   React.useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isDocked) return;
 
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
@@ -20,10 +31,167 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isDocked]);
 
-  if (!isOpen) return null;
+  // Modal mode - only render if open
+  if (!isDocked && !isOpen) return null;
 
+  // Docked mode - render as panel content
+  if (isDocked) {
+    return (
+      <div style={{ padding: '12px', height: '100%', overflowY: 'auto', fontSize: `${zoom * 100}%` }}>
+        {showZoomControls && (
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={onZoomOut}
+              title="Zoom Out"
+              style={{
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '3px',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                padding: '2px 6px',
+              }}
+            >
+              −
+            </button>
+            <button
+              onClick={onResetZoom}
+              title="Reset Zoom"
+              style={{
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '3px',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontSize: '11px',
+                padding: '2px 6px',
+              }}
+            >
+              100%
+            </button>
+            <button
+              onClick={onZoomIn}
+              title="Zoom In"
+              style={{
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '3px',
+                color: 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                padding: '2px 6px',
+              }}
+            >
+              +
+            </button>
+          </div>
+        )}
+        <div
+          style={{
+            fontSize: '11px',
+            color: 'var(--text-secondary)',
+            marginBottom: '12px',
+            lineHeight: '1.5',
+          }}
+        >
+          {t('keybindings.panel.description', 'Press the following keys to toggle map layers:')}
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: '6px',
+          }}
+        >
+          {keybindings.map(({ key, description }) => (
+            <div
+              key={key}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 8px',
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '4px',
+              }}
+            >
+              <kbd
+                style={{
+                  minWidth: '24px',
+                  padding: '3px 6px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '3px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  fontFamily: 'JetBrains Mono, monospace',
+                  color: 'var(--accent-amber)',
+                  textAlign: 'center',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {key}
+              </kbd>
+              <span
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-primary)',
+                  lineHeight: '1.3',
+                }}
+              >
+                {description}
+              </span>
+            </div>
+          ))}
+          <div
+            style={{
+              padding: '6px 8px',
+              background: 'var(--bg-panel)',
+              border: '1px solid var(--accent-cyan)',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <kbd
+              style={{
+                minWidth: '24px',
+                padding: '3px 6px',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--accent-cyan)',
+                borderRadius: '3px',
+                fontSize: '11px',
+                fontWeight: '700',
+                fontFamily: 'JetBrains Mono, monospace',
+                color: 'var(--accent-cyan)',
+                textAlign: 'center',
+              }}
+            >
+              ?
+            </kbd>
+            <span
+              style={{
+                fontSize: '11px',
+                color: 'var(--text-primary)',
+                lineHeight: '1.3',
+              }}
+            >
+              {t('keybindings.panel.toggle', 'Toggle this help panel')}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Modal mode - render as floating overlay
+
+  // Modal mode - render as floating overlay
   return (
     <div
       style={{
@@ -45,7 +213,7 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
           borderRadius: '12px',
-          width: '600px',
+          width: '700px',
           maxWidth: '90vw',
           maxHeight: '90vh',
           display: 'flex',
@@ -113,10 +281,11 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
             {t('keybindings.panel.description', 'Press the following keys to toggle map layers:')}
           </div>
 
-          {/* Keybindings list */}
+          {/* Keybindings list - 2 column grid for better space usage */}
           <div
             style={{
               display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '8px',
             }}
           >
@@ -126,8 +295,8 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '16px',
-                  padding: '12px 16px',
+                  gap: '12px',
+                  padding: '8px 12px',
                   background: 'var(--bg-tertiary)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px',
@@ -135,12 +304,12 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
               >
                 <kbd
                   style={{
-                    minWidth: '40px',
-                    padding: '6px 12px',
+                    minWidth: '32px',
+                    padding: '4px 8px',
                     background: 'var(--bg-secondary)',
                     border: '2px solid var(--border-color)',
                     borderRadius: '4px',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: '700',
                     fontFamily: 'JetBrains Mono, monospace',
                     color: 'var(--accent-amber)',
@@ -153,9 +322,10 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
                 </kbd>
                 <span
                   style={{
-                    fontSize: '14px',
+                    fontSize: '12px',
                     color: 'var(--text-primary)',
                     fontFamily: 'inherit',
+                    lineHeight: '1.3',
                   }}
                 >
                   {description}
@@ -166,24 +336,24 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
             {/* Special keybinding for help */}
             <div
               style={{
-                marginTop: '8px',
-                padding: '12px 16px',
+                padding: '8px 12px',
                 background: 'var(--bg-panel)',
                 border: '1px solid var(--accent-cyan)',
                 borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '16px',
+                gap: '12px',
+                gridColumn: 'span 2',
               }}
             >
               <kbd
                 style={{
-                  minWidth: '40px',
-                  padding: '6px 12px',
+                  minWidth: '32px',
+                  padding: '4px 8px',
                   background: 'var(--bg-secondary)',
                   border: '2px solid var(--accent-cyan)',
                   borderRadius: '4px',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: '700',
                   fontFamily: 'JetBrains Mono, monospace',
                   color: 'var(--accent-cyan)',
@@ -195,7 +365,7 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
               </kbd>
               <span
                 style={{
-                  fontSize: '14px',
+                  fontSize: '12px',
                   color: 'var(--text-primary)',
                   fontFamily: 'inherit',
                 }}
@@ -208,12 +378,12 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
           {/* Footer note */}
           <div
             style={{
-              marginTop: '20px',
-              padding: '12px',
+              marginTop: '16px',
+              padding: '10px',
               background: 'var(--bg-panel)',
               border: '1px solid var(--border-color)',
               borderRadius: '6px',
-              fontSize: '12px',
+              fontSize: '11px',
               color: 'var(--text-muted)',
               lineHeight: '1.5',
             }}

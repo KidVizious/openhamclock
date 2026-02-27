@@ -28,6 +28,7 @@ import {
   RigControlPanel,
   OnAirPanel,
   IDTimerPanel,
+  KeybindingsPanel,
 } from './components';
 
 import { loadLayout, saveLayout } from './store/layoutStore.js';
@@ -146,6 +147,9 @@ export const DockableApp = ({
   handleUpdateClick,
   updateInProgress,
   isLocalInstall,
+
+  // Keybindings
+  keybindingsList,
 }) => {
   const layoutRef = useRef(null);
   const [model, setModel] = useState(() => Model.fromJson(loadLayout()));
@@ -362,6 +366,7 @@ export const DockableApp = ({
       'rig-control': { name: 'Rig Control', icon: '📻' },
       'on-air': { name: 'On Air', icon: '🔴' },
       'id-timer': { name: 'ID Timer', icon: '📢' },
+      keybindings: { name: 'Keyboard Shortcuts', icon: '⌨️' },
     };
   }, [isLocalInstall]);
 
@@ -851,6 +856,18 @@ export const DockableApp = ({
           content = <IDTimerPanel callsign={config.callsign} />;
           break;
 
+        case 'keybindings':
+          return (
+            <KeybindingsPanel
+              keybindings={keybindingsList}
+              nodeId={nodeId}
+              zoom={panelZoom[component] || 1.0}
+              onZoomIn={() => adjustZoom(component, 1)}
+              onZoomOut={() => adjustZoom(component, -1)}
+              onResetZoom={() => resetZoom(component)}
+            />
+          );
+
         default:
           content = (
             <div style={{ padding: '20px', color: '#ff6b6b', textAlign: 'center' }}>
@@ -914,6 +931,7 @@ export const DockableApp = ({
       dxLocked,
       handleToggleDxLock,
       panelZoom,
+      keybindingsList,
     ],
   );
 
