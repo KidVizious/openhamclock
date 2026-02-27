@@ -8,8 +8,6 @@ import { useTranslation } from 'react-i18next';
 export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
   const { t } = useTranslation();
 
-  if (!isOpen) return null;
-
   // Handle escape key to close
   React.useEffect(() => {
     if (!isOpen) return;
@@ -23,6 +21,8 @@ export const KeybindingsPanel = ({ isOpen, onClose, keybindings }) => {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   return (
     <div

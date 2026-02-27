@@ -5,7 +5,7 @@
  */
 import React, { useState, useMemo, useCallback } from 'react';
 import CallsignLink from './CallsignLink.jsx';
-import { getBandColor } from '../utils/bandColors.js';
+import { getBandColorForBand } from '../utils/bandColors.js';
 
 const APRSPanel = ({ aprsData, showOnMap, onToggleMap, onSpotClick, onHoverSpot }) => {
   const {
