@@ -47,6 +47,7 @@ import useLocalInstall from './hooks/app/useLocalInstall';
 import useVersionCheck from './hooks/app/useVersionCheck';
 import WhatsNew from './components/WhatsNew.jsx';
 import { initCtyLookup } from './utils/ctyLookup.js';
+import { getAllLayers } from './plugins/layerRegistry.js';
 
 // Load DXCC entity database on app startup (non-blocking)
 initCtyLookup();
@@ -92,6 +93,45 @@ const App = () => {
       }
     }
   }, [configLoaded, config.callsign]);
+
+  useEffect(() => {
+    const layers = getAllLayers();
+    const shortcuts = {};
+    const used = new Set();
+
+    // Map the first letter of each layer name, or if already used, 
+    // The first non-duplicate letter to a key such that pressing
+    // the corresponding key will toggle the respective map layer.
+    layers.forEach(layer => {
+      const name = (layer.name || layer.id || '').toLowerCase();
+      for (let i = 0; i < name.length; i++) {
+        const k = name[i];
+        if (/[a-z]/.test(k) && !used.has(k)) {
+          shortcuts[k] = layer.id;
+          used.add(k);
+          break;
+        }
+      }
+    });
+
+    const handleKey = (e) => {
+      // Only handle key events if settings isn't opened and we aren't in a text input field
+      if (showSettings || ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+
+      // Grab pressed key, and use to index into map of layers
+      const id = shorts[e.key.toLowerCase()];
+
+      // Toggle layer
+      if (id && window.hamclockLayerControls) {
+        const layerState = window.hamclockLayerControls.layers?.find(l => l.id === id);
+        window.hamclockLayerControls.toggleLayer(id, !(layerState?.enabled ?? false));
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showSettings]);
 
   const handleResetLayout = useCallback(() => {
     resetLayout();
