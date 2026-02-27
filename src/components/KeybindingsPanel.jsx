@@ -5,19 +5,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const KeybindingsPanel = ({
-  isOpen,
-  onClose,
-  keybindings,
-  nodeId,
-  zoom = 1.0,
-  onZoomIn,
-  onZoomOut,
-  onResetZoom,
-}) => {
+export const KeybindingsPanel = ({ isOpen, onClose, keybindings, nodeId }) => {
   const { t } = useTranslation();
   const isDocked = !!nodeId;
-  const showZoomControls = isDocked && onZoomIn && onZoomOut;
 
   // Handle escape key to close (only for modal mode)
   React.useEffect(() => {
@@ -39,59 +29,10 @@ export const KeybindingsPanel = ({
   // Docked mode - render as panel content
   if (isDocked) {
     return (
-      <div style={{ padding: '12px', height: '100%', overflowY: 'auto', fontSize: `${zoom * 100}%` }}>
-        {showZoomControls && (
-          <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', justifyContent: 'flex-end' }}>
-            <button
-              onClick={onZoomOut}
-              title="Zoom Out"
-              style={{
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '3px',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '14px',
-                padding: '2px 6px',
-              }}
-            >
-              −
-            </button>
-            <button
-              onClick={onResetZoom}
-              title="Reset Zoom"
-              style={{
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '3px',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '11px',
-                padding: '2px 6px',
-              }}
-            >
-              100%
-            </button>
-            <button
-              onClick={onZoomIn}
-              title="Zoom In"
-              style={{
-                background: 'var(--bg-tertiary)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '3px',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontSize: '14px',
-                padding: '2px 6px',
-              }}
-            >
-              +
-            </button>
-          </div>
-        )}
+      <div style={{ padding: '12px', height: '100%', overflowY: 'auto' }}>
         <div
           style={{
-            fontSize: '11px',
+            fontSize: '0.85em',
             color: 'var(--text-secondary)',
             marginBottom: '12px',
             lineHeight: '1.5',
@@ -126,7 +67,7 @@ export const KeybindingsPanel = ({
                   background: 'var(--bg-secondary)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '3px',
-                  fontSize: '11px',
+                  fontSize: '0.85em',
                   fontWeight: '700',
                   fontFamily: 'JetBrains Mono, monospace',
                   color: 'var(--accent-amber)',
@@ -138,7 +79,7 @@ export const KeybindingsPanel = ({
               </kbd>
               <span
                 style={{
-                  fontSize: '11px',
+                  fontSize: '0.85em',
                   color: 'var(--text-primary)',
                   lineHeight: '1.3',
                 }}
@@ -165,7 +106,7 @@ export const KeybindingsPanel = ({
                 background: 'var(--bg-secondary)',
                 border: '1px solid var(--accent-cyan)',
                 borderRadius: '3px',
-                fontSize: '11px',
+                fontSize: '0.85em',
                 fontWeight: '700',
                 fontFamily: 'JetBrains Mono, monospace',
                 color: 'var(--accent-cyan)',
@@ -176,7 +117,7 @@ export const KeybindingsPanel = ({
             </kbd>
             <span
               style={{
-                fontSize: '11px',
+                fontSize: '0.85em',
                 color: 'var(--text-primary)',
                 lineHeight: '1.3',
               }}

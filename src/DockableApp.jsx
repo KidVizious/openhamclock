@@ -857,16 +857,8 @@ export const DockableApp = ({
           break;
 
         case 'keybindings':
-          return (
-            <KeybindingsPanel
-              keybindings={keybindingsList}
-              nodeId={nodeId}
-              zoom={panelZoom[component] || 1.0}
-              onZoomIn={() => adjustZoom(component, 1)}
-              onZoomOut={() => adjustZoom(component, -1)}
-              onResetZoom={() => resetZoom(component)}
-            />
-          );
+          content = <KeybindingsPanel keybindings={keybindingsList} nodeId={nodeId} />;
+          break;
 
         default:
           content = (
