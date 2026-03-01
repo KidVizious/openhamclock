@@ -596,6 +596,8 @@ export const DockableApp = ({
         units={config.units}
         onSpotClick={handleSpotClick}
         mouseZoom={config.mouseZoom}
+        showDEMarker={mapLayersEff.showDEMarker}
+        showDXMarker={mapLayersEff.showDXMarker}
       />
     </div>
   );

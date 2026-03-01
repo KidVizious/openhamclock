@@ -450,6 +450,8 @@ export default function ClassicLayout(props) {
             units={config.units}
             mouseZoom={config.mouseZoom}
             onSpotClick={tuneTo}
+            showDEMarker={mapLayers.showDEMarker}
+            showDXMarker={mapLayers.showDXMarker}
           />
 
           {/* Map overlay buttons — bottom-left to avoid WorldMap's SAT/CALLS buttons at top */}
@@ -772,6 +774,8 @@ export default function ClassicLayout(props) {
             units={config.units}
             mouseZoom={config.mouseZoom}
             onSpotClick={tuneTo}
+            showDEMarker={mapLayers.showDEMarker}
+            showDXMarker={mapLayers.showDXMarker}
           />
           {/* DX Lock button overlay — bottom-left to avoid WorldMap's SAT/CALLS buttons at top */}
           <button
@@ -1400,6 +1404,8 @@ export default function ClassicLayout(props) {
             units={config.units}
             mouseZoom={config.mouseZoom}
             onSpotClick={tuneTo}
+            showDEMarker={mapLayers.showDEMarker}
+            showDXMarker={mapLayers.showDXMarker}
           />
           <div
             style={{

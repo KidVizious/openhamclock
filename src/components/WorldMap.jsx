@@ -124,6 +124,8 @@ export const WorldMap = ({
   mySpots,
   onToggleSatellites,
   onHoverSpot,
+  showDEMarker = true,
+  showDXMarker = true,
 }) => {
   const { t } = useTranslation();
   const mapRef = useRef(null);
@@ -991,33 +993,37 @@ export const WorldMap = ({
     dxMarkerRef.current = [];
 
     // DE Marker — replicate across world copies
-    replicatePoint(deLocation.lat, deLocation.lon).forEach(([lat, lon]) => {
-      const deIcon = L.divIcon({
-        className: 'custom-marker de-marker',
-        html: 'DE',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+    if (showDEMarker) {
+      replicatePoint(deLocation.lat, deLocation.lon).forEach(([lat, lon]) => {
+        const deIcon = L.divIcon({
+          className: 'custom-marker de-marker',
+          html: 'DE',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        });
+        const html = `<b>DE - Your Location</b><br>${esc(calculateGridSquare(deLocation.lat, deLocation.lon))}<br>${deLocation.lat.toFixed(4)}°, ${deLocation.lon.toFixed(4)}°`;
+        const m = L.marker([lat, lon], { icon: deIcon, zIndexOffset: 20000 }).addTo(map);
+        attachPopupWeather(m, lat, lon, html);
+        deMarkerRef.current.push(m);
       });
-      const html = `<b>DE - Your Location</b><br>${esc(calculateGridSquare(deLocation.lat, deLocation.lon))}<br>${deLocation.lat.toFixed(4)}°, ${deLocation.lon.toFixed(4)}°`;
-      const m = L.marker([lat, lon], { icon: deIcon, zIndexOffset: 20000 }).addTo(map);
-      attachPopupWeather(m, lat, lon, html);
-      deMarkerRef.current.push(m);
-    });
+    }
 
     // DX Marker — replicate across world copies
-    replicatePoint(dxLocation.lat, dxLocation.lon).forEach(([lat, lon]) => {
-      const dxIcon = L.divIcon({
-        className: 'custom-marker dx-marker',
-        html: 'DX',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
+    if (showDXMarker) {
+      replicatePoint(dxLocation.lat, dxLocation.lon).forEach(([lat, lon]) => {
+        const dxIcon = L.divIcon({
+          className: 'custom-marker dx-marker',
+          html: 'DX',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16],
+        });
+        const baseHtml = `<b>DX - Target</b><br>${esc(calculateGridSquare(dxLocation.lat, dxLocation.lon))}<br>${dxLocation.lat.toFixed(4)}°, ${dxLocation.lon.toFixed(4)}°`;
+        const m = L.marker([lat, lon], { icon: dxIcon, zIndexOffset: 19000 }).addTo(map);
+        attachPopupWeather(m, lat, lon, baseHtml);
+        dxMarkerRef.current.push(m);
       });
-      const baseHtml = `<b>DX - Target</b><br>${esc(calculateGridSquare(dxLocation.lat, dxLocation.lon))}<br>${dxLocation.lat.toFixed(4)}°, ${dxLocation.lon.toFixed(4)}°`;
-      const m = L.marker([lat, lon], { icon: dxIcon, zIndexOffset: 19000 }).addTo(map);
-      attachPopupWeather(m, lat, lon, baseHtml);
-      dxMarkerRef.current.push(m);
-    });
-  }, [deLocation, dxLocation, units, dxWeatherAllowed]);
+    }
+  }, [deLocation, dxLocation, units, dxWeatherAllowed, showDEMarker, showDXMarker]);
 
   // Update sun/moon markers every 60 seconds (matches terminator refresh)
   useEffect(() => {

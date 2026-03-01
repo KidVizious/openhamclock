@@ -172,6 +172,8 @@ export default function ModernLayout(props) {
         units={config.units}
         mouseZoom={config.mouseZoom}
         onSpotClick={tuneTo}
+        showDEMarker={mapLayers.showDEMarker}
+        showDXMarker={mapLayers.showDXMarker}
       />
       <div
         style={{

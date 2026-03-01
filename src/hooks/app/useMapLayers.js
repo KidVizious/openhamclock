@@ -20,6 +20,8 @@ export default function useMapLayers() {
     showDXNews: true,
     showRotatorBearing: false,
     showAPRS: true,
+    showDEMarker: true,
+    showDXMarker: true,
   };
 
   const [mapLayers, setMapLayers] = useState(() => {
@@ -94,6 +96,8 @@ export default function useMapLayers() {
     [],
   );
   const toggleAPRS = useCallback(() => setMapLayers((prev) => ({ ...prev, showAPRS: !prev.showAPRS })), []);
+  const toggleDEMarker = useCallback(() => setMapLayers((prev) => ({ ...prev, showDEMarker: !prev.showDEMarker })), []);
+  const toggleDXMarker = useCallback(() => setMapLayers((prev) => ({ ...prev, showDXMarker: !prev.showDXMarker })), []);
 
   return {
     mapLayers,
@@ -115,5 +119,7 @@ export default function useMapLayers() {
     toggleDXNews,
     toggleRotatorBearing,
     toggleAPRS,
+    toggleDEMarker,
+    toggleDXMarker,
   };
 }

@@ -120,7 +120,7 @@ const App = () => {
   }, []);
 
   const keybindingsList = useMemo(() => {
-    return Object.entries(layerShortcuts)
+    const layerBindings = Object.entries(layerShortcuts)
       .map(([key, id]) => {
         const layer = getAllLayers().find(l => l.id === id);
         let name = layer?.name || layer?.id || id;
@@ -128,8 +128,12 @@ const App = () => {
           name = t(name, name);
         }
         return { key: key.toUpperCase(), description: `Toggle ${name}` };
-      })
-      .sort((a, b) => a.key.localeCompare(b.key));
+      });
+    
+    // Add the special 'M' keybinding for DE/DX markers
+    layerBindings.push({ key: 'M', description: 'Toggle DE/DX Markers' });
+    
+    return layerBindings.sort((a, b) => a.key.localeCompare(b.key));
   }, [layerShortcuts, t]);
 
   useEffect(() => {
@@ -147,6 +151,14 @@ const App = () => {
         return;
       }
 
+      // Special handler for 'M' key to toggle DE/DX markers
+      if (e.key.toLowerCase() === 'm') {
+        toggleDEMarker();
+        toggleDXMarker();
+        e.preventDefault();
+        return;
+      }
+
       const layerId = layerShortcuts[e.key.toLowerCase()];
       if (layerId && window.hamclockLayerControls) {
         const isEnabled = window.hamclockLayerControls.layers?.find(l => l.id === layerId)?.enabled ?? false;
@@ -159,7 +171,7 @@ const App = () => {
     return () => document.removeEventListener('keydown', handleKey);
   }, [
     showSettings, showDXFilters, showPSKFilters, showKeybindings,
-    layerShortcuts   // only real dependency
+    layerShortcuts, toggleDEMarker, toggleDXMarker   // added toggle dependencies
   ]);
 
   const handleResetLayout = useCallback(() => {
@@ -218,6 +230,8 @@ const App = () => {
     toggleWSJTX,
     toggleDXNews,
     toggleAPRS,
+    toggleDEMarker,
+    toggleDXMarker,
   } = useMapLayers();
 
   const {
