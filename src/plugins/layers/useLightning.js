@@ -9,6 +9,7 @@ export const metadata = {
   id: 'lightning',
   name: 'plugins.layers.lightning.name',
   description: 'plugins.layers.lightning.description',
+  shortcut: 'l',
   icon: '⚡',
   category: 'weather',
   defaultEnabled: false,

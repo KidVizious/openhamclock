@@ -100,16 +100,28 @@ const App = () => {
     }
   }, [configLoaded, config.callsign]);
 
-
   const layerShortcuts = useMemo(() => {
-    const layers = getAllLayers();
+    const layers = getAllLayers().sort((a, b) => (a.id || '').localeCompare(b.id || ''));
     const map = {};
     const used = new Set();
 
+    // We have to iterate over all layers first to add
+    // any predefined shortcuts
     for (const layer of layers) {
-      const name = (layer.name || layer.id || '').toLowerCase();
-      for (const char of name) {
-        if (/[a-z]/.test(char) && !used.has(char)) {
+      const char = layer.shortcut?.toLowerCase();
+      if (char && char >= 'a' && char <= 'z' && !used.has(char)) {
+        map[char] = layer.id;
+        used.add(char);
+      }
+    }
+
+    // Now iterate over layers again to assign
+    // dynamic shortcuts
+    for (const layer of layers) {
+      if (layer.shortcut) continue;
+      const id = (layer.id || '').toLowerCase();
+      for (const char of id) {
+        if (char >= 'a' && char <= 'z' && !used.has(char)) {
           map[char] = layer.id;
           used.add(char);
           break;
@@ -122,7 +134,7 @@ const App = () => {
   const keybindingsList = useMemo(() => {
     return Object.entries(layerShortcuts)
       .map(([key, id]) => {
-        const layer = getAllLayers().find(l => l.id === id);
+        const layer = getAllLayers().find((l) => l.id === id);
         let name = layer?.name || layer?.id || id;
         if (name?.startsWith('plugins.layers.')) {
           name = t(name, name);
@@ -135,21 +147,25 @@ const App = () => {
   useEffect(() => {
     const handleKey = (e) => {
       if (
-        showSettings || showDXFilters || showPSKFilters || showKeybindings ||
+        showSettings ||
+        showDXFilters ||
+        showPSKFilters ||
+        showKeybindings ||
         document.activeElement?.tagName === 'INPUT' ||
         document.activeElement?.tagName === 'TEXTAREA' ||
         document.activeElement?.tagName === 'SELECT'
-      ) return;
+      )
+        return;
 
       if (e.key === '?') {
-        setShowKeybindings(v => !v);
+        setShowKeybindings((v) => !v);
         e.preventDefault();
         return;
       }
 
       const layerId = layerShortcuts[e.key.toLowerCase()];
       if (layerId && window.hamclockLayerControls) {
-        const isEnabled = window.hamclockLayerControls.layers?.find(l => l.id === layerId)?.enabled ?? false;
+        const isEnabled = window.hamclockLayerControls.layers?.find((l) => l.id === layerId)?.enabled ?? false;
         window.hamclockLayerControls.toggleLayer(layerId, !isEnabled);
         e.preventDefault();
       }
@@ -158,8 +174,11 @@ const App = () => {
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [
-    showSettings, showDXFilters, showPSKFilters, showKeybindings,
-    layerShortcuts   // only real dependency
+    showSettings,
+    showDXFilters,
+    showPSKFilters,
+    showKeybindings,
+    layerShortcuts, // only real dependency
   ]);
 
   const handleResetLayout = useCallback(() => {
@@ -514,6 +533,11 @@ const App = () => {
         onToggleDXNews={toggleDXNews}
         wakeLockStatus={wakeLockStatus}
       />
+      <KeybindingsPanel
+        isOpen={showKeybindings}
+        onClose={() => setShowKeybindings(false)}
+        keybindings={keybindingsList}
+      />
       <DXFilterManager
         filters={dxFilters}
         onFilterChange={setDxFilters}
@@ -526,11 +550,6 @@ const App = () => {
         isOpen={showPSKFilters}
         onClose={() => setShowPSKFilters(false)}
       />
-      <KeybindingsPanel
-        isOpen={showKeybindings}
-        onClose={() => setShowKeybindings(false)}
-        keybindings={keybindingsList}
-	  />
       <ActivateFilterManager
         name="POTA"
         filters={potaFilters}

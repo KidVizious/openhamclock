@@ -30,6 +30,7 @@ export const metadata = {
   category: 'propagation',
   defaultEnabled: false,
   defaultOpacity: 0.4,
+  shortcut: 'm',
   version: '1.0.0',
 };
 

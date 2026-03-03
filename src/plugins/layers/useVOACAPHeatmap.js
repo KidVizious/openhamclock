@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { makeDraggable } from "./makeDraggable.js";
+import { makeDraggable } from './makeDraggable.js';
 
 /**
  * VOACAP-Style Propagation Heatmap Plugin v1.0.0
@@ -20,6 +20,7 @@ export const metadata = {
   category: 'propagation',
   defaultEnabled: false,
   defaultOpacity: 0.55,
+  shortcut: 'v',
   version: '1.0.0',
 };
 
@@ -86,7 +87,6 @@ function reliabilityColor(r) {
   }
   return { color: `rgb(${red},${green},${blue})`, alpha };
 }
-
 
 // Minimize/maximize toggle
 function addMinimizeToggle(container, storageKey) {

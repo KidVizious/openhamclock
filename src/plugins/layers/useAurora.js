@@ -15,6 +15,7 @@ export const metadata = {
   category: 'space-weather',
   defaultEnabled: false,
   defaultOpacity: 0.6,
+  shortcut: 'a',
   version: '2.0.0',
 };
 

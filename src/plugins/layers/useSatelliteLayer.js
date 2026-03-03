@@ -6,6 +6,7 @@ export const metadata = {
   id: 'satellites',
   name: 'Satellite Tracks',
   description: 'Real-time satellite positions with multi-select footprints',
+  shortcut: 's',
   icon: '🛰',
   category: 'satellites',
   defaultEnabled: true,
