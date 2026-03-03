@@ -2487,7 +2487,7 @@ export const SettingsPanel = ({
                       {label}
                     </div>,
                   );
-                  grouped[key].forEach((layer) => {
+                  (grouped[key] || []).forEach((layer) => {
                     result.push(renderLayerCard(layer));
                     rendered.add(layer.id);
                   });
